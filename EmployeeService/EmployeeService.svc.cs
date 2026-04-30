@@ -1,31 +1,59 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using Newtonsoft.Json;
+using System;
+using System.Configuration;
+using System.Diagnostics;
+using System.Net;
+using System.ServiceModel.Web;
+using System.Threading.Tasks;
 
 namespace EmployeeService
 {
-    // NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "Service1" in code, svc and config file together.
-    // NOTE: In order to launch WCF Test Client for testing this service, please select Service1.svc or Service1.svc.cs at the Solution Explorer and start debugging.
-    public class Service1 : IEmployeeService
+    public class EmployeeService : IEmployeeService
     {
-        public bool GetEmployeeById(int id)
+        private readonly IEmployeeRepository _repo = new EmployeeRepository(
+            ConfigurationManager.ConnectionStrings["EmployeeDb"].ConnectionString);
+        //http://localhost:64014/EmployeeService.svc/GetEmployeeById?id=1
+        public async Task<Employee> GetEmployeeById(int id)
         {
+            try
+            {
+                var employee = await _repo.GetById(id);
 
-            return false;
+                if (employee == null)
+                    throw new WebFaultException<string>($"Employee with ID {id} not found.", HttpStatusCode.NotFound);
+
+                return employee;
+            }
+            catch (WebFaultException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError(ex.ToString());
+                throw new WebFaultException<string>("An unexpected error occurred.", HttpStatusCode.InternalServerError);
+            }
         }
-
-      
-
-        public void EnableEmployee(int id, int enable)
+        //http://localhost:64014/EmployeeService.svc/EnableEmployee?id=1&enable=true
+        public async Task<string> EnableEmployee(int id, bool enable)
         {
-            
-        }
+            try
+            {
+                var updated = await _repo.UpdateEnable(id, enable);
 
-     
+                if (!updated)
+                    throw new WebFaultException<string>($"Employee with ID {id} not found.", HttpStatusCode.NotFound);
+
+                return $"Employee with ID {id} was updated successfully.";
+            }
+            catch (WebFaultException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError(ex.ToString());
+                throw new WebFaultException<string>("An unexpected error occurred.", HttpStatusCode.InternalServerError);
+            }
+        }
     }
-
-      
 }
