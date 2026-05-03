@@ -1,40 +1,67 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
+using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace InterviewConsole
 {
     class Program
     {
-        static void Main(string[] args)
+        const string BaseUrl = "http://localhost:64014/EmployeeService.svc";
+
+        static async Task Main(string[] args)
         {
-            DataTable dtEmployees = GetQueryResult("SELECT * FROM Employee");
+            await GetEmployeeAsync(id: 1);
+            await GetEnabledEmployeeAsync(id: 1);
+            await EnableEmployeeAsync(id: 1, enable: true);
         }
-        
-        private static DataTable GetQueryResult(string query)
+
+        private static async Task GetEmployeeAsync(int id)
         {
-            var dt = new DataTable();
+            await SendGetAsync($"{BaseUrl}/GetEmployeeById?id={id}");
+        }
 
-			using (var connection = new SqlConnection("Data Source=(local);Initial Catalog=Test;User ID=sa;Password=pass@word1; "))
+        private static async Task GetEnabledEmployeeAsync(int id)
+        {
+            await SendGetAsync($"{BaseUrl}/GetEnabledEmployeeById?id={id}");
+        }
+
+        private static async Task EnableEmployeeAsync(int id, bool enable)
+        {
+            await SendPutAsync($"{BaseUrl}/EnableEmployee?id={id}&enable={enable}");
+        }
+
+        private static async Task SendGetAsync(string url)
+        {
+            using (var client = new HttpClient())
             {
-                connection.Open();
-
-                using (var command = connection.CreateCommand())
+                try
                 {
-					command.CommandText = query;
-
-                    using (var adapter = new SqlDataAdapter(command))
-                    {
-                        adapter.Fill(dt);
-                    }
+                    var response = await client.GetAsync(url);
+                    response.EnsureSuccessStatusCode();
+                    Console.WriteLine(await response.Content.ReadAsStringAsync());
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
                 }
             }
+        }
 
-			return dt;
+        private static async Task SendPutAsync(string url)
+        {
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    var response = await client.PutAsync(url, null);
+                    response.EnsureSuccessStatusCode();
+                    Console.WriteLine(await response.Content.ReadAsStringAsync());
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                }
+            }
         }
     }
 }

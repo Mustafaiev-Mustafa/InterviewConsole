@@ -8,12 +8,12 @@ namespace EmployeeService
     public interface IEmployeeService
     {
         [OperationContract]
-        [WebInvoke(Method = "GET", UriTemplate = "GetEmployeeById?id={id}",
+        [WebGet(UriTemplate = "GetEmployeeById?id={id}",
             ResponseFormat = WebMessageFormat.Json, BodyStyle = WebMessageBodyStyle.Bare)]
         Task<Employee> GetEmployeeById(int id);
 
         [OperationContract]
-        [WebInvoke(Method = "GET", UriTemplate = "GetEnabledEmployeeById?id={id}",
+        [WebGet(UriTemplate = "GetEnabledEmployeeById?id={id}",
             ResponseFormat = WebMessageFormat.Json, BodyStyle = WebMessageBodyStyle.Bare)]
         Task<Employee> GetEnabledEmployeeById(int id);
 
