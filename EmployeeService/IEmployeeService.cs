@@ -13,6 +13,11 @@ namespace EmployeeService
         Task<Employee> GetEmployeeById(int id);
 
         [OperationContract]
+        [WebInvoke(Method = "GET", UriTemplate = "GetEnabledEmployeeById?id={id}",
+            ResponseFormat = WebMessageFormat.Json, BodyStyle = WebMessageBodyStyle.Bare)]
+        Task<Employee> GetEnabledEmployeeById(int id);
+
+        [OperationContract]
         [WebInvoke(Method = "PUT", UriTemplate = "EnableEmployee?id={id}&enable={enable}",
             ResponseFormat = WebMessageFormat.Json, BodyStyle = WebMessageBodyStyle.Bare)]
         Task<string> EnableEmployee(int id, bool enable);
