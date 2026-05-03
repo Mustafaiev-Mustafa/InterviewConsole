@@ -48,11 +48,19 @@ namespace EmployeeService
             _connectionString = connectionString;
         }
 
-        public Task<Employee> GetById(int id) => ExecuteTreeQuery(SqlAll, id);
+        public async Task<Employee> GetByIdAsync(int id)
+        {
+            var list = await QueryEmployeeSubtreeAsync(SqlAll, id);
+            return BuildTree(list, id);
+        }
 
-        public Task<Employee> GetEnabledById(int id) => ExecuteTreeQuery(SqlEnabledOnly, id);
+        public async Task<Employee> GetEnabledByIdAsync(int id)
+        {
+            var list = await QueryEmployeeSubtreeAsync(SqlEnabledOnly, id);
+            return BuildTree(list, id);
+        }
 
-        public async Task<bool> UpdateEnable(int id, bool enable)
+        public async Task<bool> UpdateEnableAsync(int id, bool enable)
         {
             using (var conn = new SqlConnection(_connectionString))
             {
@@ -66,7 +74,7 @@ namespace EmployeeService
             }
         }
 
-        private async Task<Employee> ExecuteTreeQuery(string sql, int id)
+        private async Task<List<Employee>> QueryEmployeeSubtreeAsync(string sql, int id)
         {
             var list = new List<Employee>();
 
@@ -99,7 +107,13 @@ namespace EmployeeService
                 }
             }
 
+            return list;
+        }
+
+        private Employee BuildTree(List<Employee> list, int id)
+        {
             var dict = list.ToDictionary(e => e.ID);
+
             foreach (var employee in list)
             {
                 if (employee.ManagerID.HasValue && dict.TryGetValue(employee.ManagerID.Value, out var manager))

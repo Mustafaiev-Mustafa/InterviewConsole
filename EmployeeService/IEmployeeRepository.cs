@@ -4,8 +4,8 @@ namespace EmployeeService
 {
     public interface IEmployeeRepository
     {
-        Task<Employee> GetById(int id);
-        Task<Employee> GetEnabledById(int id);
-        Task<bool> UpdateEnable(int id, bool enable);
+        Task<Employee> GetByIdAsync(int id);
+        Task<Employee> GetEnabledByIdAsync(int id);
+        Task<bool> UpdateEnableAsync(int id, bool enable);
     }
 }

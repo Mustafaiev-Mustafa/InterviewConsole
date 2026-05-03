@@ -15,13 +15,13 @@ namespace EmployeeService
         //http://localhost:64014/EmployeeService.svc/GetEmployeeById?id=1
         public async Task<Employee> GetEmployeeById(int id)
         {
-            return await GetEmployeeInternal(() => _repo.GetById(id), id);
+            return await GetEmployeeInternal(() => _repo.GetByIdAsync(id), id);
         }
 
         //http://localhost:64014/EmployeeService.svc/GetEnabledEmployeeById?id=1
         public async Task<Employee> GetEnabledEmployeeById(int id)
         {
-            return await GetEmployeeInternal(() => _repo.GetEnabledById(id), id);
+            return await GetEmployeeInternal(() => _repo.GetEnabledByIdAsync(id), id);
         }
 
         //http://localhost:64014/EmployeeService.svc/EnableEmployee?id=1&enable=true
@@ -29,7 +29,7 @@ namespace EmployeeService
         {
             try
             {
-                var updated = await _repo.UpdateEnable(id, enable);
+                var updated = await _repo.UpdateEnableAsync(id, enable);
 
                 if (!updated)
                     throw new WebFaultException<string>($"Employee with ID {id} not found.", HttpStatusCode.NotFound);
